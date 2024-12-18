@@ -556,6 +556,7 @@ static struct camera_common_pdata *ov5647_parse_dt(
 	struct camera_common_pdata *ret = NULL;
 	int err = 0;
 	int gpio;
+	int led_gpio;
 
 	if (!np)
 		return NULL;
@@ -579,6 +580,24 @@ static struct camera_common_pdata *ov5647_parse_dt(
 		goto error;
 	}
 	board_priv_pdata->reset_gpio = (unsigned int)gpio;
+
+	led_gpio = of_get_named_gpio(np, "led-gpios", 0);
+	if (led_gpio < 0) {
+		if (led_gpio == -EPROBE_DEFER)
+			ret = ERR_PTR(-EPROBE_DEFER);
+		dev_err(dev, "led-gpios not found\n");
+		goto error;
+	}
+	board_priv_pdata->led_gpio = (unsigned int)led_gpio;
+
+
+	if (board_priv_pdata->led_gpio) {
+		if (gpio_cansleep(board_priv_pdata->led_gpio))
+			gpio_set_value_cansleep(board_priv_pdata->led_gpio, 0);
+		else
+			gpio_set_value(board_priv_pdata->led_gpio, 0);
+	}
+
 
 	/*
 	 * TODO: To be checked and updated
