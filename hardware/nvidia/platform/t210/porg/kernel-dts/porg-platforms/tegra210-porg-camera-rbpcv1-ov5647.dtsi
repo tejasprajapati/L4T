@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "tegra210-camera-rbpcv2-imx219.dtsi"
+#include "tegra210-camera-rbpcv1-ov5647.dtsi"
 
 #define CAM1_PWDN		TEGRA_GPIO(S, 7)
 #define CAM1_LED		TEGRA_GPIO(S, 0)
@@ -25,7 +25,7 @@
 		i2c@546c0000 {
 			rbpcv1_ov5647_a@10 {
 				reset-gpios = <&gpio CAM1_PWDN GPIO_ACTIVE_HIGH>;
-				led-gpios = <&gpio CAM1_LED GPIO_ACTIVE_HIGH>
+				led-gpios = <&gpio CAM1_LED GPIO_ACTIVE_HIGH>;
 			};
 		};
 	};
