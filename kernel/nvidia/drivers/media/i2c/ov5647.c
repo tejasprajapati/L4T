@@ -593,9 +593,9 @@ static struct camera_common_pdata *ov5647_parse_dt(
 
 	if (board_priv_pdata->led_gpio) {
 		if (gpio_cansleep(board_priv_pdata->led_gpio))
-			gpio_set_value_cansleep(board_priv_pdata->led_gpio, 0);
+			gpio_set_value_cansleep(board_priv_pdata->led_gpio, 1);
 		else
-			gpio_set_value(board_priv_pdata->led_gpio, 0);
+			gpio_set_value(board_priv_pdata->led_gpio, 1);
 	}
 
 

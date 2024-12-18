@@ -82,6 +82,7 @@ struct camera_common_pdata {
 	const char *parentclk_name; /* NULL for no parent clock*/
 	unsigned int pwdn_gpio;
 	unsigned int reset_gpio;
+	unsigned int led_gpio;
 	unsigned int af_gpio;
 	bool ext_reg;
 	int (*power_on)(struct camera_common_power_rail *pw);
