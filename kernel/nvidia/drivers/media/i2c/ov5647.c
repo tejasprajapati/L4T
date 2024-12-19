@@ -824,14 +824,17 @@ static int ov5647_probe(struct i2c_client *client,
 
 static int ov5647_remove(struct i2c_client *client)
 {
+	struct device *dev = &client->dev;
 	struct camera_common_data *s_data = to_camera_common_data(&client->dev);
 	struct ov5647 *priv = (struct ov5647 *)s_data->priv;
-	struct camera_common_power_rail *pw = s_data->power;
+	struct camera_common_power_rail *pw = s_data->pdata;
+
+	dev_info(dev, "%s called\n", __func__);
 
 	if (pw->led_gpio) {
-		if (gpio_cansleep(pw->led_gpio))
+		if (gpio_cansleep(pw->led_gpio)) {
 			gpio_set_value_cansleep(pw->led_gpio, 0);
-		else
+		} else
 			gpio_set_value(pw->led_gpio, 0);
 	}
 
