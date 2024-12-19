@@ -842,6 +842,14 @@ static int ov5647_remove(struct i2c_client *client)
 {
 	struct camera_common_data *s_data = to_camera_common_data(&client->dev);
 	struct ov5647 *priv = (struct ov5647 *)s_data->priv;
+	struct camera_common_power_rail *pw = s_data->power;
+
+	if (pw->led_gpio) {
+		if (gpio_cansleep(pw->led_gpio))
+			gpio_set_value_cansleep(pw->led_gpio, 0);
+		else
+			gpio_set_value(pw->led_gpio, 0);
+	}
 
 	tegracam_v4l2subdev_unregister(priv->tc_dev);
 	tegracam_device_unregister(priv->tc_dev);
