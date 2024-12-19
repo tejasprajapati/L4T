@@ -83,7 +83,6 @@ struct ov5647 {
 
 	struct media_pad		pad;
 	struct mutex			lock;
-	struct clk			*xclk;
 	struct gpio_desc		*pwdn;
 	struct gpio_desc		*reset;
 	bool				clock_ncont;
@@ -767,7 +766,6 @@ static int ov5647_probe(struct i2c_client *client,
 	struct device *dev = &client->dev;
 	struct tegracam_device *tc_dev;
 	struct ov5647 *priv;
-	u32 xclk_freq;
 	int err;
 
 	dev_info(dev, "probing v4l2 sensor at addr 0x%0x\n", client->addr);
@@ -805,20 +803,6 @@ static int ov5647_probe(struct i2c_client *client,
 	priv->s_data = tc_dev->s_data;
 	priv->subdev = &tc_dev->s_data->subdev;
 	tegracam_set_privdata(tc_dev, (void *)priv);
-
-	priv->xclk = devm_clk_get(dev, NULL);
-	if (IS_ERR(priv->xclk)) {
-		dev_err(dev, "could not get xclk");
-		return PTR_ERR(priv->xclk);
-	}
-
-	xclk_freq = clk_get_rate(priv->xclk);
-	if (xclk_freq != 25000000) {
-		dev_err(dev, "Unsupported clock frequency: %u\n", xclk_freq);
-		return -EINVAL;
-	} else {
-		dev_info(dev, "clock rate %u\n", xclk_freq);
-	}
 
 	err = ov5647_board_setup(priv);
 	if (err) {
