@@ -81,7 +81,6 @@ struct ov5647 {
 	struct camera_common_data	*s_data;
 	struct tegracam_device		*tc_dev;
 
-
 	struct media_pad		pad;
 	struct mutex			lock;
 	struct clk			*xclk;
@@ -350,13 +349,20 @@ static int imx219_power_on(struct camera_common_data *s_data)
 	}
 
 	/*
-	 * TODO: chamge the timing parameters as per the ov5647 requirement
+	 * TODO: change the timing parameters as per the ov5647 requirement
 	 */
 	if (pw->reset_gpio) {
 		if (gpio_cansleep(pw->reset_gpio))
 			gpio_set_value_cansleep(pw->reset_gpio, 0);
 		else
 			gpio_set_value(pw->reset_gpio, 0);
+	}
+
+	if (pw->led_gpio) {
+		if (gpio_cansleep(pw->led_gpio))
+			gpio_set_value_cansleep(pw->led_gpio, 1);
+		else
+			gpio_set_value(pw->led_gpio, 1);
 	}
 
 	if (unlikely(!(pw->avdd || pw->iovdd || pw->dvdd)))
@@ -761,6 +767,7 @@ static int ov5647_probe(struct i2c_client *client,
 	struct device *dev = &client->dev;
 	struct tegracam_device *tc_dev;
 	struct ov5647 *priv;
+	u32 xclk_freq;
 	int err;
 
 	dev_info(dev, "probing v4l2 sensor at addr 0x%0x\n", client->addr);
@@ -798,6 +805,20 @@ static int ov5647_probe(struct i2c_client *client,
 	priv->s_data = tc_dev->s_data;
 	priv->subdev = &tc_dev->s_data->subdev;
 	tegracam_set_privdata(tc_dev, (void *)priv);
+
+	priv->xclk = devm_clk_get(dev, NULL);
+	if (IS_ERR(priv->xclk)) {
+		dev_err(dev, "could not get xclk");
+		return PTR_ERR(priv->xclk);
+	}
+
+	xclk_freq = clk_get_rate(priv->xclk);
+	if (xclk_freq != 25000000) {
+		dev_err(dev, "Unsupported clock frequency: %u\n", xclk_freq);
+		return -EINVAL;
+	} else {
+		dev_info(dev, "clock rate %u\n", xclk_freq);
+	}
 
 	err = ov5647_board_setup(priv);
 	if (err) {

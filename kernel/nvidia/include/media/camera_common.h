@@ -66,6 +66,7 @@ struct camera_common_power_rail {
 	struct clk *mclk;
 	unsigned int pwdn_gpio;
 	unsigned int reset_gpio;
+	unsigned int led_gpio;
 	unsigned int af_gpio;
 	bool state;
 };
